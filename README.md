@@ -1,2 +1,2 @@
 # YetAnotherToDoList
-Yet Another To Do List Project in Rust
+Yet Another To Do List Project in Go
