@@ -14,12 +14,22 @@ type task struct {
 	Done  bool   `json:"done"`
 }
 
+type user struct {
+	ID           string `json:"id"`
+	Username     string `json:"username"`
+	PasswordHash string `json:"password"`
+}
+
 var tasks = []task{
 	{ID: "1", Title: "Finir le rapport", Done: false},
 	{ID: "2", Title: "Acheter un cadeau", Done: false},
 	{ID: "3", Title: "Saisir les imputations", Done: true},
 	{ID: "4", Title: "Touver un restaurant", Done: false},
 	{ID: "5", Title: "Acheter des pommes de terre 🥔", Done: false},
+}
+
+var users = []user{
+	{ID: "1", Username: "Administrateur", PasswordHash: "admin"},
 }
 
 func getTasks(c *gin.Context) {
@@ -49,6 +59,29 @@ func postTasks(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newTask)
 }
 
+func postLogin(c *gin.Context) {
+	var loginSend user
+
+	if err := c.BindJSON(&loginSend); err != nil {
+		return
+	}
+
+	for _, l := range users {
+		if l.Username == loginSend.Username {
+			if l.PasswordHash == loginSend.PasswordHash {
+				c.IndentedJSON(http.StatusOK, gin.H{"message": "Connected"})
+				return
+			} else {
+				c.IndentedJSON(http.StatusForbidden, gin.H{"message": "Bad credentials"})
+				return
+			}
+		}
+	}
+
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "User not found"})
+
+}
+
 func main() {
 	router := gin.Default()
 
@@ -65,6 +98,8 @@ func main() {
 	router.GET("/tasks", getTasks)
 	router.GET("task/:id", getTasksByID)
 	router.POST("/tasks", postTasks)
+
+	router.POST("/login", postLogin)
 
 	router.Run("localhost:8080")
 }

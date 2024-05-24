@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Container, Typography } from '@mui/material';
+import { Container, Typography, Switch } from '@mui/material';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import TodoList from './components/TodoList';
+import Login from './components/Login';
 
 const App = () => {
 
   return (
-    <Container maxWidth="sm">
-      <Typography variant="h4" align="center" gutterBottom>
-        Gestionnaire de Tâches
-      </Typography>
-      <TodoList />
-    </Container>
+    <Router>
+
+      <Routes>
+        <Route path="/" element={<Login/>}/>
+        <Route path="/todo" element={<TodoList/>}/> 
+      </Routes>
+    </Router>
   );
 };
 
