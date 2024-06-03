@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, List, ListItem, ListItemText, Checkbox, Typography, TextField, Button, Box, CircularProgress } from '@mui/material';
+import { Container, List, ListItem, ListItemText, Checkbox, Typography, TextField, Button, Box, CircularProgress, Grid } from '@mui/material';
+import { API_BASE_URL } from './Utils';
+import UserCard from './UserCard';
+import Cookies from 'js-cookie';
+
 
 const TodoList = () => {
   const [tasks, setTasks] = useState([]);
@@ -8,13 +12,16 @@ const TodoList = () => {
   const [error, setError] = useState(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
+
+  
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = () => {
     setLoading(true);
-    axios.get('http://localhost:8080/tasks')
+    axios.get(API_BASE_URL + '/tasks', {headers : {'Authorization' : 'Bearer ' + Cookies.get('token')} })
       .then(response => {
         setTasks(response.data);
         setLoading(false);
@@ -28,9 +35,9 @@ const TodoList = () => {
   const handleAddTask = () => {
     if (newTaskTitle.trim() === "") return;
 
-    const newTask = { title: newTaskTitle, done: false };
+    const newTask = { Title: newTaskTitle, Status: false };
 
-    axios.post('http://localhost:8080/tasks', newTask)
+    axios.post(API_BASE_URL + '/task', newTask,  {headers : {'Authorization' : 'Bearer ' + Cookies.get('token')}})
       .then(response => {
         setTasks([...tasks, response.data]);
         setNewTaskTitle("");
@@ -49,30 +56,39 @@ const TodoList = () => {
   }
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Liste des tâches
-      </Typography>
-      <Box display="flex" mb={2}>
-        <TextField 
-          label="Nouvelle tâche" 
-          value={newTaskTitle} 
-          onChange={(e) => setNewTaskTitle(e.target.value)} 
-          fullWidth 
-        />
-        <Button variant="contained" color="primary" onClick={handleAddTask} style={{ marginLeft: '8px' }}>
-          Ajouter
-        </Button>
-      </Box>
-      <List>
-        {tasks.map(task => (
-          <ListItem key={task.id}>
-            <Checkbox edge="start" checked={task.done} />
-            <ListItemText primary={task.title} />
-          </ListItem>
-        ))}
-      </List>
-    </Container>
+    <Grid container spacing={4} sx = {{padding:10,}}>
+
+
+        <Grid item xs={10}>
+          <Box display="flex" mb={2}>
+          <TextField 
+              label="Nouvelle tâche" 
+              value={newTaskTitle} 
+              onChange={(e) => setNewTaskTitle(e.target.value)} 
+              fullWidth 
+            />
+          <Button variant="contained" color="primary" onClick={handleAddTask} style={{ marginLeft: '8px' }}>
+              Ajouter
+          </Button>
+          </Box>
+
+
+          <List>
+            {tasks.map(task => (
+              <ListItem key={task.ID}>
+                <Checkbox edge="start" checked={task.Status} />
+                <ListItemText primary={task.Title} />
+              </ListItem>
+            ))}
+          </List>
+        </Grid>
+
+
+        <Grid item xs={2}>
+          <UserCard></UserCard>
+        </Grid>
+
+    </Grid>
   );
 };
 

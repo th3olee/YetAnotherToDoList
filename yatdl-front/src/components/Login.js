@@ -1,27 +1,42 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Grid } from '@mui/material';
+import { API_BASE_URL } from './Utils';
+import Cookies from 'js-cookie';
+
 
 const Login = () => {
+
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:8080/login', {
+      const response = await axios.post( API_BASE_URL + '/login', {
         username,
         password
       });
-      // Stocker le jeton JWT ou gérer la réponse de connexion ici
-      console.log(response.data);
+      
+      const token = response.data.token;
+      Cookies.set('token', token, {expires:1});
+
+      window.location.href = "/todo";
     } catch (err) {
       setError('Invalid username or password');
     }
   };
 
   return (
-    <Container maxWidth="sm">
+
+    <Grid container spacing={4} >
+      <Grid item xs={8}>
+        <img src="https://picsum.photos/1000/1080"/>
+      </Grid>
+
+
+      <Grid item xs={4} padding={30}>
       <Box display="flex" flexDirection="column" alignItems="center" mt={5}>
         <Typography variant="h4" gutterBottom>
           Login
@@ -52,7 +67,8 @@ const Login = () => {
           Login
         </Button>
       </Box>
-    </Container>
+      </Grid>
+    </Grid>
   );
 };
 
